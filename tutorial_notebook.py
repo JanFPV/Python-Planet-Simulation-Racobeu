@@ -2,9 +2,9 @@ import pygame
 import math
 pygame.init()
 
-WIDTH, HEIGHT =  800, 800
+WIDTH, HEIGHT =  1820, 980
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Planet Simulation")
+pygame.display.set_caption("Planet Simulation for Racobeu")
 
 WHITE = (255, 255, 255)
 YELLOW = (255, 255, 0)
@@ -12,7 +12,7 @@ BLUE = (100, 149, 237)
 RED = (188, 39, 50)
 DARK_GREY = (80, 78, 81)
 
-FONT = pygame.font.SysFont("comicsans", 16)
+FONT = pygame.font.SysFont("arial", 16)
 
 class Planet:
 	AU = 149.6e6 * 1000
@@ -91,6 +91,7 @@ class Planet:
 def main():
 	run = True
 	clock = pygame.time.Clock()
+	paused = False
 
 	sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10**30)
 	sun.sun = True
@@ -116,12 +117,16 @@ def main():
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				run = False
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_SPACE:
+					paused = not paused
 
-		for planet in planets:
-			planet.update_position(planets)
-			planet.draw(WIN)
+		if not paused:
+			for planet in planets:
+				planet.update_position(planets)
+				planet.draw(WIN)
+			pygame.display.update()
 
-		pygame.display.update()
 
 	pygame.quit()
 

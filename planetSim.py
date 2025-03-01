@@ -2,9 +2,9 @@ import pygame
 import math
 pygame.init()
 
-WIDTH, HEIGHT =  800, 800
+WIDTH, HEIGHT =  1820, 980
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Planet Simulation")
+pygame.display.set_caption("Planet Simulation for Racobeu")
 
 WHITE = (255, 255, 255)
 YELLOW = (255, 255, 0)
@@ -12,7 +12,7 @@ BLUE = (100, 149, 237)
 RED = (188, 39, 50)
 DARK_GREY = (80, 78, 81)
 
-FONT = pygame.font.SysFont("comicsans", 16)
+FONT = pygame.font.SysFont("arial", 16)
 
 class Planet:
 	AU = 149.6e6 * 1000
@@ -20,7 +20,8 @@ class Planet:
 	SCALE = 250 / AU  # 1AU = 100 pixels
 	TIMESTEP = 3600*24 # 1 day
 
-	def __init__(self, x, y, radius, color, mass):
+	def __init__(self, name, x, y, radius, color, mass):
+		self.name = name
 		self.x = x
 		self.y = y
 		self.radius = radius
@@ -86,28 +87,40 @@ class Planet:
 		self.y += self.y_vel * self.TIMESTEP
 		self.orbit.append((self.x, self.y))
 
+def get_variable_name(var):
+	for frame in inspect.stack():
+		names = [name for name, val in frame.frame.f_locals.items() if val is var]
+		if names:
+			return names[0]
+	return "Unknown"
 
+def render_text(win, text, x, y, color=WHITE):
+    """Render text on the screen at the specified position."""
+    rendered_text = FONT.render(text, True, color)
+    win.blit(rendered_text, (x, y))
 
 def main():
 	run = True
 	clock = pygame.time.Clock()
+	paused = False
+	iteration = 0
 
-	sun = Planet(0, 0, 30, YELLOW, 1.98892 * 10**30)
+	sun = Planet("Sun", 0, 0, 30, YELLOW, 1.98892 * 10**30)
 	sun.sun = True
 
-	earth = Planet(-1 * Planet.AU, 0, 16, BLUE, 5.9742 * 10**24)
-	earth.y_vel = 29.783 * 1000
-
-	mars = Planet(-1.524 * Planet.AU, 0, 12, RED, 6.39 * 10**23)
-	mars.y_vel = 24.077 * 1000
-
-	mercury = Planet(0.387 * Planet.AU, 0, 8, DARK_GREY, 3.30 * 10**23)
+	mercury = Planet("Mercury", 0.387 * Planet.AU, 0, 8, DARK_GREY, 3.30 * 10**23)
 	mercury.y_vel = -47.4 * 1000
 
-	venus = Planet(0.723 * Planet.AU, 0, 14, WHITE, 4.8685 * 10**24)
+	venus = Planet("Venus", 0.723 * Planet.AU, 0, 14, WHITE, 4.8685 * 10**24)
 	venus.y_vel = -35.02 * 1000
 
-	planets = [sun, earth, mars, mercury, venus]
+	earth = Planet("Earth", -1 * Planet.AU, 0, 16, BLUE, 5.9742 * 10**24)
+	earth.y_vel = 29.783 * 1000
+
+	mars = Planet("Mars", -1.524 * Planet.AU, 0, 12, RED, 6.39 * 10**23)
+	mars.y_vel = 24.077 * 1000
+
+	planets = [sun, mercury, venus, earth, mars]
 
 	while run:
 		clock.tick(60)
@@ -116,14 +129,27 @@ def main():
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				run = False
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_SPACE:
+					paused = not paused
 
-		for planet in planets:
-			planet.update_position(planets)
-			planet.draw(WIN)
+		if not paused:
+			for planet in planets:
+				planet.update_position(planets)
+				planet.draw(WIN)
+			pygame.display.update()
 
-		pygame.display.update()
+			iteration += 1
+			if iteration % 20 == 0:
+				print("Iteration:", iteration)
+				y_offset = 10  # Initial y position for text rendering
+				for planet in planets:
+					velocity = math.sqrt(planet.x_vel**2 + planet.y_vel**2)
+					text = f"Planet: {planet.name}, Velocity: {velocity:.2f} m/s"
+					print(text)
+					render_text(WIN, text, WIDTH - 500 + 10, y_offset)
+					y_offset += 20  # Increment y position for the next line
 
 	pygame.quit()
-
 
 main()
