@@ -60,4 +60,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgements
 
-This project was developed as part of an educational course at UPNA.
+This project was developed as part of an educational course at VUAS in Ventspils, Latvia.
